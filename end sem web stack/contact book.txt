@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Book</title>
+  <style>
+    body {
+      max-width: 520px;
+      margin: 30px auto;
+      padding: 0 15px;
+      background: #f5f5f5;
+      font-family: Arial, sans-serif;
+    }
+    form, #search, .card {
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+    input, button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .delete {
+      width: auto;
+      margin: 0;
+      padding: 6px 10px;
+      background: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <h2>Contact Book</h2>
+
+  <form id="form">
+    <input id="name" placeholder="Name" required>
+    <input id="phone" placeholder="Phone Number" required>
+    <input id="email" type="email" placeholder="Email Address" required>
+    <input id="address" placeholder="Address" required>
+    <button type="submit">Add</button>
+  </form>
+
+  <input id="search" placeholder="Search by name or phone...">
+  <div id="list"></div>
+
+  <script>
+    const form = document.getElementById("form");
+    const list = document.getElementById("list");
+    const search = document.getElementById("search");
+    let contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
+
+    function save() {
+      localStorage.setItem("contacts", JSON.stringify(contacts));
+    }
+
+    function render() {
+      const text = search.value.toLowerCase();
+      const matches = contacts.filter(contact =>
+        contact.name.toLowerCase().includes(text) ||
+        contact.phone.toLowerCase().includes(text)
+      );
+
+      list.innerHTML = matches.length ? matches.map(contact => `
+        <div class="card">
+          <div>
+            <strong>${contact.name}</strong><br>
+            ${contact.phone} | ${contact.email}<br>
+            <small>${contact.address}</small>
+          </div>
+          <button class="delete" onclick="removeContact(${contact.id})">Delete</button>
+        </div>
+      `).join("") : "<p>No contacts.</p>";
+    }
+
+    form.onsubmit = event => {
+      event.preventDefault();
+      contacts.push({
+        id: Date.now(),
+        name: name.value.trim(),
+        phone: phone.value.trim(),
+        email: email.value.trim(),
+        address: address.value.trim()
+      });
+      save();
+      render();
+      form.reset();
+    };
+
+    function removeContact(id) {
+      contacts = contacts.filter(contact => contact.id !== id);
+      save();
+      render();
+    }
+
+    search.oninput = render;
+    render();
+  </script>
+</body>
+</html>
